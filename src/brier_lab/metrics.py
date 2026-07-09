@@ -61,3 +61,15 @@ def reliability_bins(
             }
         )
     return out
+
+
+def accuracy_at_threshold(y_true, y_prob, threshold: float = 0.5) -> float:
+    """Binary accuracy after thresholding probabilities."""
+    if len(y_true) != len(y_prob) or not y_true:
+        raise ValueError("length mismatch")
+    correct = 0
+    for yt, yp in zip(y_true, y_prob):
+        pred = 1 if float(yp) >= threshold else 0
+        if pred == int(yt):
+            correct += 1
+    return correct / len(y_true)
