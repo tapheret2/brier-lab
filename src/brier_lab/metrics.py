@@ -63,6 +63,31 @@ def reliability_bins(
     return out
 
 
+def expected_calibration_error(
+    forecasts: Sequence[float],
+    outcomes: Sequence[int],
+    n_bins: int = 10,
+) -> float:
+    """Expected Calibration Error (ECE) from equal-width probability bins.
+
+    ECE = sum_i (n_i / N) * |avg_forecast_i - emp_rate_i|
+    Empty bins contribute 0.
+    """
+    if len(forecasts) != len(outcomes) or not forecasts:
+        raise ValueError("forecasts and outcomes must be same non-empty length")
+    bins = reliability_bins(forecasts, outcomes, n_bins=n_bins)
+    n_total = len(forecasts)
+    ece = 0.0
+    for row in bins:
+        n = int(row["n"] or 0)
+        if n == 0:
+            continue
+        avg_f = float(row["avg_forecast"])
+        emp = float(row["emp_rate"])
+        ece += (n / n_total) * abs(avg_f - emp)
+    return ece
+
+
 def accuracy_at_threshold(y_true, y_prob, threshold: float = 0.5) -> float:
     """Binary accuracy after thresholding probabilities."""
     if len(y_true) != len(y_prob) or not y_true:
