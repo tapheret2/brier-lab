@@ -98,3 +98,23 @@ def accuracy_at_threshold(y_true, y_prob, threshold: float = 0.5) -> float:
         if pred == int(yt):
             correct += 1
     return correct / len(y_true)
+
+
+def mean_log_loss(
+    forecasts: Sequence[float],
+    outcomes: Sequence[int],
+    eps: float = 1e-12,
+) -> float:
+    """Mean binary log-loss over paired forecasts/outcomes."""
+    if len(forecasts) != len(outcomes) or not forecasts:
+        raise ValueError("forecasts and outcomes length mismatch")
+    return sum(log_loss(f, o, eps=eps) for f, o in zip(forecasts, outcomes)) / len(
+        forecasts
+    )
+
+
+def mean_forecast(forecasts: Sequence[float]) -> float:
+    """Average predicted probability (sharpness / base-rate check)."""
+    if not forecasts:
+        raise ValueError("forecasts must be non-empty")
+    return sum(float(f) for f in forecasts) / len(forecasts)
