@@ -118,3 +118,29 @@ def mean_forecast(forecasts: Sequence[float]) -> float:
     if not forecasts:
         raise ValueError("forecasts must be non-empty")
     return sum(float(f) for f in forecasts) / len(forecasts)
+
+
+def sharpness(forecasts: Sequence[float]) -> float:
+    """Variance of forecasts around their mean (higher = sharper)."""
+    if not forecasts:
+        raise ValueError("forecasts must be non-empty")
+    mu = sum(float(f) for f in forecasts) / len(forecasts)
+    return sum((float(f) - mu) ** 2 for f in forecasts) / len(forecasts)
+
+
+def brier_skill_score(
+    forecasts: Sequence[float],
+    outcomes: Sequence[int],
+    ref: float | None = None,
+) -> float:
+    """1 - BS/BS_ref where ref is climatology (mean outcome) by default."""
+    if len(forecasts) != len(outcomes) or not forecasts:
+        raise ValueError("length mismatch")
+    bs = mean_brier(forecasts, outcomes)
+    if ref is None:
+        ref = sum(int(o) for o in outcomes) / len(outcomes)
+    ref = max(0.0, min(1.0, float(ref)))
+    bs_ref = mean_brier([ref] * len(outcomes), outcomes)
+    if bs_ref == 0:
+        return 0.0 if bs == 0 else float("-inf")
+    return 1.0 - (bs / bs_ref)
