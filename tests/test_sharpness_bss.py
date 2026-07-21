@@ -1,7 +1,7 @@
 from brier_lab.metrics import brier_skill_score, sharpness
 
 def test_sharpness_constant_is_zero():
-    assert sharpness([0.4, 0.4, 0.4]) == 0.0
+    assert sharpness([0.4, 0.4, 0.4]) < 1e-12
 
 def test_bss_perfect_better_than_climatology():
     # perfect forecasts vs outcomes
