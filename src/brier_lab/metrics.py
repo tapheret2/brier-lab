@@ -144,3 +144,19 @@ def brier_skill_score(
     if bs_ref == 0:
         return 0.0 if bs == 0 else float("-inf")
     return 1.0 - (bs / bs_ref)
+
+
+def multi_class_brier(probs: Sequence[float], outcome_index: int) -> float:
+    """Multi-class Brier score for one forecast distribution.
+
+    ``probs`` should sum ~1; ``outcome_index`` is the true class index.
+    """
+    if not probs:
+        raise ValueError("probs must be non-empty")
+    if not 0 <= outcome_index < len(probs):
+        raise ValueError("outcome_index out of range")
+    total = 0.0
+    for i, p in enumerate(probs):
+        y = 1.0 if i == outcome_index else 0.0
+        total += (float(p) - y) ** 2
+    return total
