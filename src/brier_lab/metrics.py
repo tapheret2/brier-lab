@@ -160,3 +160,20 @@ def multi_class_brier(probs: Sequence[float], outcome_index: int) -> float:
         y = 1.0 if i == outcome_index else 0.0
         total += (float(p) - y) ** 2
     return total
+
+
+def log_loss_binary(y_true: float, p: float, eps: float = 1e-15) -> float:
+    """Binary log loss for a single outcome (0/1) and probability p."""
+    if y_true not in (0, 1, 0.0, 1.0):
+        raise ValueError("y_true must be 0 or 1")
+    p = min(1.0 - eps, max(eps, float(p)))
+    import math
+    if y_true == 1:
+        return -math.log(p)
+    return -math.log(1.0 - p)
+
+
+def mean_absolute_error(y_true: list[float], y_pred: list[float]) -> float:
+    if len(y_true) != len(y_pred) or not y_true:
+        raise ValueError("non-empty equal-length lists required")
+    return sum(abs(a - b) for a, b in zip(y_true, y_pred)) / len(y_true)
